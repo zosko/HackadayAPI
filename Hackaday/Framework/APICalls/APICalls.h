@@ -11,8 +11,10 @@
 typedef void(^Success)(NSDictionary *dictData);
 typedef void(^Failed)(NSString *message);
 
-#define API_KEY @"uc5JeEBDTvUnyhHR"
-#define API_URL @"http://api.hackaday.io/v1/"
+#define CLIENT_ID   @""
+#define SECRET_KEY  @""
+#define API_KEY     @""
+#define API_URL     @"http://api.hackaday.io/v1/"
 
 @interface APICalls : NSObject
 
