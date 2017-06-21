@@ -7,20 +7,18 @@
 //
 
 #import "APICalls.h"
+#import "UIWebView+Blocks.h"
 
 @implementation APICalls
 
-
 #pragma mark - Common
-+(void)get:(NSString *)url success:(Success)success failed:(Failed)failed{
-    NSURL *URL = [NSURL URLWithString:@""];
-    if([url containsString:@"?"]){
-       URL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&api_key=%@",API_URL,url,API_KEY]];
-    }
-    else{
-        URL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@?api_key=%@",API_URL,url,API_KEY]];
-    }
-    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
++(void)auth:(NSString *)code success:(Success)success failed:(Failed)failed{
+    NSString *strUrl = [NSString stringWithFormat:@"https://auth.hackaday.io/access_token?client_id=%@&client_secret=%@&code=%@&grant_type=authorization_code",CLIENT_ID,SECRET_KEY,code];
+    NSURL *URL = [NSURL URLWithString:strUrl];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    
+    [request setHTTPMethod:@"POST"];
     
     NSLog(@"URL: %@",URL);
     
@@ -63,6 +61,125 @@
             });
         }
     }] resume];
+}
++(void)get:(NSString *)url success:(Success)success failed:(Failed)failed{
+    NSURL *URL = [NSURL URLWithString:@""];
+    if([url containsString:@"?"]){
+       URL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&api_key=%@",API_URL,url,API_KEY]];
+    }
+    else{
+        URL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@?api_key=%@",API_URL,url,API_KEY]];
+    }
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    
+    if([[[NSUserDefaults standardUserDefaults] dictionaryRepresentation].allKeys containsObject:@"hackaday_token"]){
+        NSString *authorizationHeader = [NSString stringWithFormat:@"token %@",[[NSUserDefaults standardUserDefaults] objectForKey:@"hackaday_token"]];
+        [request addValue:authorizationHeader forHTTPHeaderField:@"authorization"];
+    }
+    [request setHTTPMethod:@"GET"];
+    NSLog(@"Headers: %@",request.allHTTPHeaderFields);
+    NSLog(@"URL: %@",URL);
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler: ^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+        
+        if([[NSThread currentThread] isMainThread]){
+            if(error){
+                failed(error.userInfo[@"NSLocalizedDescription"]);
+                NSLog(@"status code: %ld RESPOND: %@",(long)[httpResponse statusCode],error.userInfo);
+            }
+            else{
+                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+                if(dict){
+                    success(dict);
+                }
+                else{
+                    NSLog(@"status code: %ld RESPOND: %@",(long)[httpResponse statusCode],[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                    failed(@"JSON error");
+                }
+            }
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if(error){
+                    failed(error.userInfo[@"NSLocalizedDescription"]);
+                    NSLog(@"status code: %ld RESPOND: %@",(long)[httpResponse statusCode],error.userInfo);
+                }
+                else{
+                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+                    if(dict){
+                        success(dict);
+                    }
+                    else{
+                        NSLog(@"status code: %ld RESPOND: %@",(long)[httpResponse statusCode],[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                        failed(@"JSON error");
+                    }
+                }
+            });
+        }
+    }] resume];
+}
+
+#pragma mark - OAuth
++(void)GetAccessToken:(UIViewController *)viewController{
+    NSString *strUrl = [NSString stringWithFormat:@"https://hackaday.io/authorize?client_id=%@&response_type=code",CLIENT_ID];
+    NSURL *url = [NSURL URLWithString:strUrl];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    
+    UIWebView *webView = [UIWebView loadRequest:request
+                                         loaded:^(UIWebView *webView) {
+                                             
+                                             NSString *currentURL = webView.request.URL.absoluteString;
+                                             NSLog(@"currentURL: %@",currentURL);
+                                             
+                                             if([currentURL containsString:@"code="]){
+                                                 NSString *code = [currentURL componentsSeparatedByString:@"code="][1];
+                                                 NSLog(@"code: %@",code);
+                                                 
+                                                 [self auth:code success:^(NSDictionary *dictData) {
+                                                     NSString *accessToken = dictData[@"access_token"];
+                                                     NSLog(@"AccessToken: %@",accessToken);
+                                                     [[NSUserDefaults standardUserDefaults] setObject:accessToken forKey:@"hackaday_token"];
+                                                     [[NSUserDefaults standardUserDefaults] synchronize];
+                                                     
+                                                     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Login success" message:nil preferredStyle:UIAlertControllerStyleAlert];
+                                                     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                         [webView removeFromSuperview];
+                                                     }];
+                                                     [alert addAction:okAction];
+                                                     [viewController presentViewController:alert animated:YES completion:nil];
+                                                     
+                                                 } failed:^(NSString *message) {
+                                                     NSLog(@"error token: %@",message);
+                                                     
+                                                     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Invalid login" message:nil preferredStyle:UIAlertControllerStyleAlert];
+                                                     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                         [webView removeFromSuperview];
+                                                     }];
+                                                     [alert addAction:okAction];
+                                                     [viewController presentViewController:alert animated:YES completion:nil];
+                                                 }];
+                                                 
+                                             }
+                                             else{
+                                                 NSString *htmlFromWeb = [webView stringByEvaluatingJavaScriptFromString:@"document.body.innerHTML"];
+                                                 NSLog(@"Loaded successfully: %@",htmlFromWeb);
+                                                 if([htmlFromWeb containsString:@"Invalid email or password"]){
+                                                     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Invalid login" message:nil preferredStyle:UIAlertControllerStyleAlert];
+                                                     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                                                         [webView removeFromSuperview];
+                                                     }];
+                                                     [alert addAction:okAction];
+                                                     [viewController presentViewController:alert animated:YES completion:nil];
+                                                 }
+                                             }
+                                         }
+                                         failed:^(UIWebView *webView, NSError *error) {
+                                             NSLog(@"Failed loading %@", error);
+                                         }];
+    webView.frame = viewController.view.frame;
+    [viewController.view addSubview:webView];
 }
 
 #pragma mark - Search
@@ -310,7 +427,13 @@
         failed(message);
     }];
 }
-//GET /me                           << Need Token
++(void)GetMe:(Success)success failed:(Failed)failed{
+    [self get:@"me" success:^(NSDictionary *dictData) {
+        success(dictData);
+    } failed:^(NSString *message) {
+        failed(message);
+    }];
+}
 
 #pragma mark - Comments
 +(void)GetCommentsFromUser:(NSString *)userID success:(Success)success failed:(Failed)failed{
@@ -429,12 +552,5 @@
         failed(message);
     }];
 }
-
-#pragma mark - Message
-//GET /message                      << Need Token
-//GET /message/:conversation_id     << Need Token
-//POST /message/personal            << Need Token
-//POST /message/project             << Need Token
-
 
 @end

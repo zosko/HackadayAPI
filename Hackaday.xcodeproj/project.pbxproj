@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6D5816711EFA96ED00D9E2C3 /* UIWebView+Blocks.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D5816701EFA96ED00D9E2C3 /* UIWebView+Blocks.m */; };
 		6D7D3B861CAD4567001BA6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D7D3B851CAD4567001BA6A4 /* main.m */; };
 		6D7D3B891CAD4567001BA6A4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D7D3B881CAD4567001BA6A4 /* AppDelegate.m */; };
 		6D7D3B8C1CAD4567001BA6A4 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D7D3B8B1CAD4567001BA6A4 /* ViewController.m */; };
@@ -17,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6D58166F1EFA96ED00D9E2C3 /* UIWebView+Blocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+Blocks.h"; sourceTree = "<group>"; };
+		6D5816701EFA96ED00D9E2C3 /* UIWebView+Blocks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+Blocks.m"; sourceTree = "<group>"; };
 		6D7D3B811CAD4567001BA6A4 /* Hackaday.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hackaday.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D7D3B851CAD4567001BA6A4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6D7D3B871CAD4567001BA6A4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -42,6 +45,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6D58166E1EFA96ED00D9E2C3 /* UIWebViewBlocks */ = {
+			isa = PBXGroup;
+			children = (
+				6D58166F1EFA96ED00D9E2C3 /* UIWebView+Blocks.h */,
+				6D5816701EFA96ED00D9E2C3 /* UIWebView+Blocks.m */,
+			);
+			path = UIWebViewBlocks;
+			sourceTree = "<group>";
+		};
 		6D7D3B781CAD4567001BA6A4 = {
 			isa = PBXGroup;
 			children = (
@@ -86,6 +98,7 @@
 		6D919C8D1CAE6DAC001F4153 /* APICalls */ = {
 			isa = PBXGroup;
 			children = (
+				6D58166E1EFA96ED00D9E2C3 /* UIWebViewBlocks */,
 				6D919C8E1CAE6DD1001F4153 /* APICalls.h */,
 				6D919C8F1CAE6DD1001F4153 /* APICalls.m */,
 			);
@@ -166,6 +179,7 @@
 				6D7D3B891CAD4567001BA6A4 /* AppDelegate.m in Sources */,
 				6D919C901CAE6DD1001F4153 /* APICalls.m in Sources */,
 				6D7D3B861CAD4567001BA6A4 /* main.m in Sources */,
+				6D5816711EFA96ED00D9E2C3 /* UIWebView+Blocks.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

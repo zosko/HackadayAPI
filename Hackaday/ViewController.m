@@ -15,20 +15,30 @@
 
 @implementation ViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
-    
-    [APICalls GetFeedGlobal:^(NSDictionary *dictData) {
-        NSLog(@"%@",dictData);
+#pragma mark - IBActions
+-(IBAction)onBtnAuthorize:(UIButton *)sender{
+    [APICalls GetAccessToken:self];
+}
+-(IBAction)onBtnTest:(UIButton *)sender{
+    [APICalls GetMe:^(NSDictionary *dictData) {
+        NSLog(@"get me: %@",dictData);
     } failed:^(NSString *message) {
-        NSLog(@"%@",message);
+        NSLog(@"error: %@",message);
     }];
 }
 
-- (void)didReceiveMemoryWarning {
+#pragma mark - UIViewDelegates
+-(void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [APICalls GetFeedGlobal:^(NSDictionary *dictData) {
+        NSLog(@"get feed: %@",dictData);
+    } failed:^(NSString *message) {
+        NSLog(@"error: %@",message);
+    }];
+}
+-(void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end

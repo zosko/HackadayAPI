@@ -8,15 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
+@import UIKit;
+
 typedef void(^Success)(NSDictionary *dictData);
 typedef void(^Failed)(NSString *message);
 
-#define CLIENT_ID   @""
-#define SECRET_KEY  @""
-#define API_KEY     @""
+#define CLIENT_ID   @"Q4qkCGiKthvFrOXpD9ASWDBmDyL7nfDs9Icb11KH7nFptJ0Q"
+#define SECRET_KEY  @"rbEUTRnQiT7n0gn47Wfh2oVCtFF50x9zqMLQKJrGNHVivrEu"
+#define API_KEY     @"uc5JeEBDTvUnyhHR"
 #define API_URL     @"http://api.hackaday.io/v1/"
 
 @interface APICalls : NSObject
+
+#pragma mark - OAuth
++(void)GetAccessToken:(UIViewController *)viewController;
 
 #pragma mark - Search
 +(void)SearchTerm:(NSString *)term success:(Success)success failed:(Failed)failed;
@@ -55,7 +60,7 @@ typedef void(^Failed)(NSString *message);
 +(void)GetUsersFromID:(NSString *)fromID toID:(NSString *)toID success:(Success)success failed:(Failed)failed;
 +(void)GetUsersDetailsIDs:(NSArray *)arrUsersID success:(Success)success failed:(Failed)failed;
 +(void)SearchUsersByName:(NSString *)name andLocation:(NSString *)location success:(Success)success failed:(Failed)failed;
-//GET /me                           << Need Token
++(void)GetMe:(Success)success failed:(Failed)failed;
 
 #pragma mark - Comments
 +(void)GetCommentsFromUser:(NSString *)userID success:(Success)success failed:(Failed)failed;
@@ -78,12 +83,5 @@ typedef void(^Failed)(NSString *message);
 
 #pragma mark - Feeds
 +(void)GetFeedGlobal:(Success)success failed:(Failed)failed;
-
-#pragma mark - Message
-//GET /message                      << Need Token
-//GET /message/:conversation_id     << Need Token
-//POST /message/personal            << Need Token
-//POST /message/project             << Need Token
-
 
 @end
