@@ -11,11 +11,4 @@ xCode example application
 
 ----------
 
-TODO:
-- Pagination
-- Sorts
-- Access Token
-
-----------
-
 For more information, see the [Hackaday API docs](https://dev.hackaday.io/) and the [Hackaday API Project on Hackaday.io](https://hackaday.io/project/5602-hackaday-api)
